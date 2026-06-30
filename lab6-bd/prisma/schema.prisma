@@ -1,0 +1,110 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "mysql"
+}
+
+model Cliente {
+  id             String   @id @default(uuid())
+  nomeCompleto   String   @map("nome_completo")
+  cpf            String   @unique
+  email          String   @unique
+  fone           String
+  dataNascimento DateTime @map("data_nascimento")
+
+  enderecos Endereco[]
+  compras   Compra[]
+
+  @@map("clientes")
+}
+
+model Endereco {
+  id     String @id @default(uuid())
+  rua    String
+  numero String
+  cidade String
+  estado String
+
+  clienteId String  @map("cliente_id")
+  cliente   Cliente @relation(fields: [clienteId], references: [id])
+
+  // Relação adicionada para suprir a regra: "endereço selecionado para envio"
+  compras Compra[]
+
+  @@map("enderecos")
+}
+
+model Categoria {
+  id   String @id @default(uuid())
+  nome String
+
+  subcategorias Subcategoria[]
+  produtos      Produto[]
+
+  @@map("categorias")
+}
+
+model Subcategoria {
+  id   String @id @default(uuid())
+  nome String
+
+  categoriaId String    @map("categoria_id")
+  categoria   Categoria @relation(fields: [categoriaId], references: [id])
+
+  @@map("subcategorias")
+}
+
+model Produto {
+  id         String @id @default(uuid())
+  modelo     String
+  fabricante String
+  precoBase  Float  @map("preco_base")
+  qtdEstoque Int    @map("qtd_estoque")
+
+  categoriaId String    @map("categoria_id")
+  categoria   Categoria @relation(fields: [categoriaId], references: [id])
+
+  numerosSerie NumeroSerie[]
+
+  // Relação N:M implícita do Prisma para a lista de compras
+  compras Compra[]
+
+  @@map("produtos")
+}
+
+model NumeroSerie {
+  id     String @id @default(uuid())
+  numero String @unique
+
+  produtoId String  @map("produto_id")
+  produto   Produto @relation(fields: [produtoId], references: [id])
+
+  @@map("numeros_serie")
+}
+
+model Compra {
+  id             String   @id @default(uuid())
+  dataHora       DateTime @default(now()) @map("data_hora")
+  desconto       Float? // Opcional conforme requisito ("caso tenha sido oferecido")
+  formaPagamento String   @map("forma_pagamento")
+  total          Float
+
+  clienteId String  @map("cliente_id")
+  cliente   Cliente @relation(fields: [clienteId], references: [id])
+
+  enderecoId String   @map("endereco_id")
+  endereco   Endereco @relation(fields: [enderecoId], references: [id])
+
+  // Relação N:M implícita: Lista de produtos comprados nesta compra
+  produtos Produto[]
+
+  @@map("compras")
+}
