@@ -81,8 +81,8 @@ model Produto {
 }
 
 model NumeroSerie {
-  id     String @id @default(uuid())
-  numero String @unique
+  id     String  @id @default(uuid())
+  numero String? @unique
 
   produtoId String  @map("produto_id")
   produto   Produto @relation(fields: [produtoId], references: [id])
