@@ -77,3 +77,68 @@ export async function createProduct(productData: CreateProductDto) {
 		include: productInclude,
 	})
 }
+
+// atualiza um produto existente
+export async function updateProduct(id: string, productData: CreateProductDto) {
+	await ensureCategoriaExists(productData.categoriaId)
+
+	const existingProduct = await prisma.produto.findUnique({
+		where: {
+			id,
+		},
+		select: {
+			id: true,
+		},
+	})
+
+	if (!existingProduct) {
+		throw new Error("Produto nao encontrado")
+	}
+
+	return prisma.produto.update({
+		where: {
+			id,
+		},
+		data: {
+			modelo: productData.modelo,
+			fabricante: productData.fabricante,
+			precoBase: productData.precoBase,
+			qtdEstoque: productData.qtdEstoque,
+			categoria: {
+				connect: {
+					id: productData.categoriaId,
+				},
+			},
+		},
+		include: productInclude,
+	})
+}
+
+// exclui um produto existente
+export async function deleteProduct(id: string) {
+	const existingProduct = await prisma.produto.findUnique({
+		where: {
+			id,
+		},
+		select: {
+			id: true,
+		},
+	})
+
+	if (!existingProduct) {
+		throw new Error("Produto nao encontrado")
+	}
+
+	await prisma.$transaction([
+		prisma.numeroSerie.deleteMany({
+			where: {
+				produtoId: id,
+			},
+		}),
+		prisma.produto.delete({
+			where: {
+				id,
+			},
+		}),
+	])
+}

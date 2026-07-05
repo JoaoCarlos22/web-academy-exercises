@@ -10,6 +10,8 @@ export interface CreateProductDto {
 	categoriaId: string
 }
 
+export type UpdateProductDto = CreateProductDto
+
 function assertObject(body: unknown): asserts body is RequestBody {
 	if (body === null || typeof body !== "object" || Array.isArray(body)) {
 		throw new Error("O corpo da requisicao deve ser um objeto valido")
@@ -26,4 +28,8 @@ export function parseCreateProductDto(body: unknown): CreateProductDto {
 		qtdEstoque: readInt(body.qtdEstoque, "qtdEstoque", true) as number,
 		categoriaId: readString(body.categoriaId, "categoriaId", true) as string,
 	}
+}
+
+export function parseUpdateProductDto(body: unknown): UpdateProductDto {
+	return parseCreateProductDto(body)
 }

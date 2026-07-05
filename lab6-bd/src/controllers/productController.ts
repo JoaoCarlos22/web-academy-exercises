@@ -1,10 +1,12 @@
 import type { Request, Response } from "express"
-import { parseCreateProductDto } from "../dtos/productDto.js"
+import { parseCreateProductDto, parseUpdateProductDto } from "../dtos/productDto.js"
 import {
 	createProduct,
+	deleteProduct,
 	getAllProducts,
 	getCategories,
 	getProductById,
+	updateProduct,
 } from "../services/productServices.js"
 
 function getStatusCode(error: unknown) {
@@ -79,9 +81,43 @@ async function createProductController(request: Request, response: Response) {
 	}
 }
 
+async function updateProductController(request: Request, response: Response) {
+	try {
+		const productId = Array.isArray(request.params.id) ? request.params.id[0] : request.params.id
+
+		if (typeof productId !== "string" || productId.length === 0) {
+			throw new Error("O parametro id e obrigatorio")
+		}
+
+		const productData = parseUpdateProductDto(request.body)
+		const product = await updateProduct(productId, productData)
+
+		return response.status(200).json(product)
+	} catch (error) {
+		return sendError(response, error)
+	}
+}
+
+async function deleteProductController(request: Request, response: Response) {
+	try {
+		const productId = Array.isArray(request.params.id) ? request.params.id[0] : request.params.id
+
+		if (typeof productId !== "string" || productId.length === 0) {
+			throw new Error("O parametro id e obrigatorio")
+		}
+
+		await deleteProduct(productId)
+		return response.status(204).send()
+	} catch (error) {
+		return sendError(response, error)
+	}
+}
+
 export default {
 	getAllProducts: getAllProductsController,
 	getCategories: getCategoriesController,
 	getProductById: getProductByIdController,
 	createProduct: createProductController,
+	updateProduct: updateProductController,
+	deleteProduct: deleteProductController,
 }
