@@ -9,7 +9,7 @@
   "scripts": {
     "seed": "tsx prisma/seed.ts",
     "build": "tsc",
-    "start": "nodemon --watch 'src/**/*.ts' --exec 'tsx' src/index.ts",
+    "start": "nodemon --watch src/**/*.ts --exec tsx src/index.ts",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
@@ -17,6 +17,7 @@
   "license": "ISC",
   "type": "module",
   "devDependencies": {
+    "@types/cors": "^2.8.19",
     "@types/express": "^5.0.6",
     "@types/node": "^26.0.1",
     "nodemon": "^3.1.14",
@@ -28,6 +29,7 @@
   "dependencies": {
     "@prisma/adapter-mariadb": "^7.8.0",
     "@prisma/client": "^7.8.0",
+    "cors": "^2.8.6",
     "dotenv": "^17.4.2",
     "envalid": "^8.2.0",
     "express": "^5.2.1"

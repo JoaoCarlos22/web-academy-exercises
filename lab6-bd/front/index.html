@@ -1,0 +1,395 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Gerenciador de Produtos - Web Academy</title>
+    <style>
+      * {
+        box-sizing: border-box;
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      }
+      body {
+        background-color: #f4f6f9;
+        margin: 0;
+        padding: 2rem;
+        color: #333;
+      }
+      .container {
+        max-width: 900px;
+        margin: 0 auto;
+      }
+      h1 {
+        text-align: center;
+        color: #1e293b;
+        margin-bottom: 2rem;
+      }
+
+      .card {
+        background: #fff;
+        padding: 1.5rem;
+        border-radius: 8px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        margin-bottom: 2rem;
+      }
+      .card h2 {
+        margin-top: 0;
+        font-size: 1.25rem;
+        color: #0f172a;
+        border-bottom: 2px solid #f1f5f9;
+        padding-bottom: 0.5rem;
+      }
+
+      .form-group {
+        margin-bottom: 1rem;
+      }
+      label {
+        display: block;
+        margin-bottom: 0.4rem;
+        font-weight: 600;
+        font-size: 0.9rem;
+      }
+      input,
+      select {
+        width: 100%;
+        padding: 0.6rem;
+        border: 1px solid #cbd5e1;
+        border-radius: 6px;
+        font-size: 0.95rem;
+      }
+      input:focus,
+      select:focus {
+        outline: none;
+        border-color: #2563eb;
+      }
+
+      .form-row {
+        display: flex;
+        gap: 1rem;
+      }
+      .form-row .form-group {
+        flex: 1;
+      }
+
+      .btn-group {
+        display: flex;
+        gap: 0.5rem;
+      }
+      button {
+        background-color: #2563eb;
+        color: white;
+        border: none;
+        padding: 0.7rem 1.2rem;
+        border-radius: 6px;
+        cursor: pointer;
+        font-weight: 600;
+        width: 100%;
+        font-size: 1rem;
+        transition: background 0.2s;
+      }
+      button:hover {
+        background-color: #1d4ed8;
+      }
+      button.btn-cancel {
+        background-color: #64748b;
+        display: none;
+      }
+      button.btn-cancel:hover {
+        background-color: #475569;
+      }
+
+      .products-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+        gap: 1rem;
+      }
+      .product-card {
+        background: #fff;
+        padding: 1.2rem;
+        border-radius: 8px;
+        border: 1px solid #e2e8f0;
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+      }
+      .product-card h3 {
+        margin: 0 0 0.5rem 0;
+        font-size: 1.1rem;
+        color: #1e293b;
+      }
+      .product-card p {
+        margin: 0.3rem 0;
+        font-size: 0.9rem;
+        color: #64748b;
+      }
+      .product-card .price {
+        font-size: 1.2rem;
+        font-weight: bold;
+        color: #16a34a;
+        margin: 0.5rem 0;
+      }
+
+      .card-actions {
+        display: flex;
+        gap: 0.5rem;
+        margin-top: 1rem;
+      }
+      .btn-edit {
+        background-color: #f59e0b;
+        font-size: 0.85rem;
+        padding: 0.4rem;
+      }
+      .btn-edit:hover {
+        background-color: #d97706;
+      }
+      .btn-delete {
+        background-color: #ef4444;
+        font-size: 0.85rem;
+        padding: 0.4rem;
+      }
+      .btn-delete:hover {
+        background-color: #dc2626;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>Gerenciador de Produtos</h1>
+
+      <div class="card">
+        <h2 id="formTitle">Cadastrar Novo Produto</h2>
+        <form id="productForm">
+          <input type="hidden" id="productId" />
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="modelo">Modelo</label>
+              <input
+                type="text"
+                id="modelo"
+                required
+                placeholder="Ex: Teclado Mecânico RGB"
+              />
+            </div>
+            <div class="form-group">
+              <label for="fabricante">Fabricante</label>
+              <input
+                type="text"
+                id="fabricante"
+                required
+                placeholder="Ex: Logitech"
+              />
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="precoBase">Preço (R$)</label>
+              <input
+                type="number"
+                step="0.01"
+                id="precoBase"
+                required
+                placeholder="250.00"
+              />
+            </div>
+            <div class="form-group">
+              <label for="qtdEstoque">Estoque</label>
+              <input type="number" id="qtdEstoque" required placeholder="10" />
+            </div>
+            <div class="form-group">
+              <label for="categoriaId">Categoria</label>
+              <select id="categoriaId" required>
+                <option value="">Carregando categorias...</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="btn-group">
+            <button type="submit" id="btnSubmit">Cadastrar Produto</button>
+            <button
+              type="button"
+              id="btnCancel"
+              class="btn-cancel"
+              onclick="resetForm()"
+            >
+              Cancelar Edição
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <div class="card">
+        <h2>Produtos Cadastrados</h2>
+        <div id="productsList" class="products-grid">
+          <p>Carregando produtos...</p>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      const API_URL = "http://localhost:4343/products";
+
+      // 1. LER CATEGORIAS (GET /products/categories)
+      async function loadCategories() {
+        try {
+          const res = await fetch(`${API_URL}/categories`);
+          const categories = await res.json();
+
+          const select = document.getElementById("categoriaId");
+          select.innerHTML =
+            '<option value="">Selecione uma categoria</option>';
+
+          categories.forEach((cat) => {
+            const option = document.createElement("option");
+            option.value = cat.id;
+            option.textContent = cat.nome;
+            select.appendChild(option);
+          });
+        } catch (error) {
+          console.error("Erro ao carregar categorias:", error);
+        }
+      }
+
+      // 2. LER PRODUTOS (GET /products)
+      async function loadProducts() {
+        try {
+          const res = await fetch(API_URL);
+          const products = await res.json();
+
+          const container = document.getElementById("productsList");
+
+          if (!products || products.length === 0) {
+            container.innerHTML = "<p>Nenhum produto cadastrado.</p>";
+            return;
+          }
+
+          container.innerHTML = products
+            .map(
+              (prod) => `
+          <div class="product-card">
+            <div>
+              <h3>${prod.modelo}</h3>
+              <p><strong>Fabricante:</strong> ${prod.fabricante}</p>
+              <p><strong>Estoque:</strong> ${prod.qtdEstoque} un.</p>
+              <p class="price">R$ ${Number(prod.precoBase).toFixed(2)}</p>
+            </div>
+            <div class="card-actions">
+              <button class="btn-edit" onclick="prepareEdit('${prod.id}')">Editar</button>
+              <button class="btn-delete" onclick="deleteProduct('${prod.id}')">Excluir</button>
+            </div>
+          </div>
+        `,
+            )
+            .join("");
+        } catch (error) {
+          console.error("Erro ao carregar produtos:", error);
+        }
+      }
+
+      // 3. CRIAR (POST) OU ATUALIZAR (PUT) PRODUTO
+      document
+        .getElementById("productForm")
+        .addEventListener("submit", async (e) => {
+          e.preventDefault();
+
+          const productId = document.getElementById("productId").value;
+          const productData = {
+            modelo: document.getElementById("modelo").value,
+            fabricante: document.getElementById("fabricante").value,
+            precoBase: parseFloat(document.getElementById("precoBase").value),
+            qtdEstoque: parseInt(
+              document.getElementById("qtdEstoque").value,
+              10,
+            ),
+            categoriaId: document.getElementById("categoriaId").value,
+          };
+
+          const isEditing = Boolean(productId);
+          const url = isEditing
+            ? `${API_URL}/${productId}`
+            : `${API_URL}/create`;
+          const method = isEditing ? "PUT" : "POST";
+
+          try {
+            const res = await fetch(url, {
+              method: method,
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(productData),
+            });
+
+            if (res.ok) {
+              alert(
+                isEditing
+                  ? "Produto atualizado com sucesso!"
+                  : "Produto cadastrado com sucesso!",
+              );
+              resetForm();
+              loadProducts();
+            } else {
+              const errData = await res.json();
+              alert(`Erro: ${errData.message}`);
+            }
+          } catch (error) {
+            alert("Erro ao conectar com o servidor.");
+          }
+        });
+
+      // (GET /products/:id)
+      async function prepareEdit(id) {
+        try {
+          const res = await fetch(`${API_URL}/${id}`);
+          if (!res.ok) throw new Error("Produto não encontrado");
+
+          const prod = await res.json();
+
+          document.getElementById("productId").value = prod.id;
+          document.getElementById("modelo").value = prod.modelo;
+          document.getElementById("fabricante").value = prod.fabricante;
+          document.getElementById("precoBase").value = prod.precoBase;
+          document.getElementById("qtdEstoque").value = prod.qtdEstoque;
+          document.getElementById("categoriaId").value = prod.categoriaId;
+
+          document.getElementById("formTitle").textContent = "Editar Produto";
+          document.getElementById("btnSubmit").textContent =
+            "Salvar Alterações";
+          document.getElementById("btnCancel").style.display = "block";
+
+          window.scrollTo({ top: 0, behavior: "smooth" });
+        } catch (error) {
+          alert("Erro ao buscar dados do produto para edição.");
+        }
+      }
+
+      function resetForm() {
+        document.getElementById("productForm").reset();
+        document.getElementById("productId").value = "";
+        document.getElementById("formTitle").textContent =
+          "Cadastrar Novo Produto";
+        document.getElementById("btnSubmit").textContent = "Cadastrar Produto";
+        document.getElementById("btnCancel").style.display = "none";
+      }
+
+      async function deleteProduct(id) {
+        if (!confirm("Deseja realmente excluir este produto?")) return;
+
+        try {
+          const res = await fetch(`${API_URL}/${id}`, { method: "DELETE" });
+          if (res.ok) {
+            alert("Produto excluído com sucesso!");
+            loadProducts();
+          } else {
+            alert("Erro ao excluir produto.");
+          }
+        } catch (error) {
+          alert("Erro ao conectar com o servidor.");
+        }
+      }
+
+      // Carregamento inicial
+      loadCategories();
+      loadProducts();
+    </script>
+  </body>
+</html>
